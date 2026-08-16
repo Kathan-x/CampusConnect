@@ -183,3 +183,43 @@ db.registrations.aggregate([
 - Unique indexes (`event_id`, `registration_id`, `event_id+enrollment_number`) enforce data integrity at the database level, similar to SQL UNIQUE constraints.
 - Aggregation pipeline (`$group`, `$lookup`, `$sort`, `$project`) performs SQL-JOIN-like and GROUP BY-like operations across `events` and `registrations`.
 - Flask routes call PyMongo directly — no ORM — so every MongoDB operation is visible and explainable in `app.py`.
+
+## 👥 Team & Contributions
+
+CampusConnect was collaboratively developed by:
+
+### 👨‍💻 Kathan Patel
+**Primary Contributions**
+- Flask backend architecture
+- MongoDB database integration using PyMongo
+- MongoDB CRUD operations
+- Event management backend
+- Student registration backend
+- MongoDB Query Center
+- Custom MongoDB Query Console
+- Query parser and security restrictions
+- MongoDB aggregation pipelines
+- Database indexes and duplicate-registration protection
+- Dashboard data integration
+
+### 👩‍💻 Heer
+**Primary Contributions**
+- Frontend interface development
+- HTML/Jinja2 templates
+- CSS and responsive UI
+- Event Management interface
+- Student Registration interface
+- Registration Management interface
+- Dashboard UI
+- MongoDB Query Center interface
+- JavaScript interactions and validation
+- Search and filtering interface
+- UI testing and responsive design
+
+### 🤝 Shared Contributions
+- Project planning and architecture
+- MongoDB schema design
+- Testing and debugging
+- UI/UX refinement
+- Final integration
+- Viva preparation and documentation
