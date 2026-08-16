@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Query Center - CampusConnect{% endblock %}
+{% block page_title %}MongoDB Query Center{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Run live queries and aggregations against MongoDB</span>{% endblock %}
+{% block content %}
+
+<p class="section-hint">Each card below executes a real MongoDB operation through PyMongo. Click "Run Query" to see live results and the exact operation used — useful for viva demonstration.</p>
+
+<div class="query-grid">
+  {% set query_cards = [
+    ("search_by_name", "bi-search", "Search Event by Name", "Case-insensitive regex search by name.", True, "purple"),
+    ("all_events", "bi-collection", "View All Events", "Every event document currently stored.", False, "indigo"),
+    ("technical", "bi-cpu", "Technical Events", "Events filtered by category: Technical.", False, "blue"),
+    ("cultural", "bi-music-note-beamed", "Cultural Events", "Events filtered by category: Cultural.", False, "purple"),
+    ("sports", "bi-trophy", "Sports Events", "Events filtered by category: Sports.", False, "orange"),
+    ("workshop", "bi-tools", "Workshop Events", "Events filtered by category: Workshop.", False, "teal"),
+    ("hackathon", "bi-code-slash", "Hackathon Events", "Events filtered by category: Hackathon.", False, "violet"),
+    ("upcoming", "bi-clock-history", "Upcoming Events", "Open events scheduled from today onward.", False, "green"),
+    ("completed", "bi-check2-circle", "Completed Events", "Events marked as Completed.", False, "slate"),
+    ("fee_above_500", "bi-currency-rupee", "Fee &gt; &#8377;500", "Events with registration fee above &#8377;500.", False, "orange"),
+    ("capacity_above_100", "bi-people", "Capacity &gt; 100", "Events with more than 100 max participants.", False, "teal"),
+    ("sort_by_date", "bi-sort-down", "Sort Events by Date", "All events sorted chronologically.", False, "indigo"),
+    ("most_registered", "bi-graph-up-arrow", "Most Registered Events", "Events ranked by registration count (aggregation).", False, "violet"),
+    ("registration_count_by_event", "bi-bar-chart-steps", "Registration Count by Event", "Every event with its live registration count (aggregation).", False, "violet"),
+    ("total_registrations", "bi-clipboard-data", "Total Registrations", "Total number of registration documents.", False, "blue"),
+  ] %}
+  {% for key, icon, title, desc, needs_term, accent in query_cards %}
+  <div class="query-card" data-query="{{ key }}" {{ 'data-needs-term="1"' if needs_term }}>
+    <div class="query-card-head">
+      <div class="query-icon query-icon-{{ accent }}"><i class="bi {{ icon }}"></i></div>
+      <span class="query-card-title">{{ title | safe }}</span>
+    </div>
+    <p class="query-card-desc">{{ desc | safe }}</p>
+    {% if needs_term %}
+    <div class="query-card-input-row">
+      <label class="query-card-input-label" for="searchTermInput">Event name</label>
+      <input type="text" class="input query-card-input" id="searchTermInput" placeholder="Enter event name...">
+    </div>
+    {% endif %}
+    <button class="query-run-btn" type="button" data-query-btn="{{ key }}">Run Query <i class="bi bi-arrow-right"></i></button>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="panel" id="resultPanel" style="display:none;">
+  <div class="result-meta">
+    <h3 id="resultTitle">Result</h3>
+  </div>
+  <div class="operation-box">
+    <span class="operation-title">MongoDB Operation</span>
+    <code id="queryLabel"></code>
+  </div>
+  <div id="resultContent"></div>
+</div>
+
+<div class="panel custom-query-card">
+  <div class="panel-head">
+    <h3><i class="bi bi-lightning-charge-fill"></i>Custom MongoDB Query</h3>
+  </div>
+  <p class="section-hint">
+    Write and execute your own MongoDB query against the live CampusConnect database.
+    Only safe, whitelisted read/aggregate/update-one/delete-one operations are supported —
+    the collection is whatever you write in the query itself, e.g. <code>db.registrations.find(...)</code>.
+  </p>
+
+  <div class="cq-toolbar">
+    <label class="cq-collection-label">Collection
+      <select id="cqCollection" class="input">
+        <option value="events">events</option>
+        <option value="registrations">registrations</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="cq-editor-wrap">
+    <textarea id="cqEditor" class="cq-editor" spellcheck="false" rows="5" placeholder='db.events.find({ category: &quot;Technical&quot; })'></textarea>
+  </div>
+
+  <div class="cq-actions">
+    <button class="btn btn-primary" id="cqExecuteBtn"><i class="bi bi-play-fill"></i>Execute Query</button>
+    <button class="btn btn-outline" id="cqClearBtn">Clear</button>
+  </div>
+
+  <div class="cq-examples">
+    <span class="cq-examples-label">Examples</span>
+    <div class="cq-example-chips" id="cqExamples"></div>
+  </div>
+
+  <div class="cq-history" id="cqHistorySection" style="display:none;">
+    <span class="cq-examples-label">Recent Queries</span>
+    <div class="cq-example-chips" id="cqHistory"></div>
+  </div>
+
+  <div class="cq-result-section" id="cqResultSection" style="display:none;">
+    <div class="cq-result-status" id="cqStatus"></div>
+    <div class="cq-result-console" id="cqResultConsole"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cqConfirmModal">
+  <div class="cc-modal">
+    <div class="modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <h3>Confirm Database Change</h3>
+    <p id="cqConfirmText"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cqCancelBtn">Cancel</button>
+      <button class="btn btn-danger btn-solid" id="cqConfirmBtn"><i class="bi bi-exclamation-triangle"></i>Execute</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/queries.js') }}"></script>
+<script src="{{ url_for('static', filename='js/custom-query.js') }}"></script>
+{% endblock %}

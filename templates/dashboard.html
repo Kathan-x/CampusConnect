@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - CampusConnect{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ today_display }}</span>{% endblock %}
+{% block content %}
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Total Events</span>
+      <span class="kpi-value">{{ total_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-indigo"><i class="bi bi-calendar2-week-fill"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Total Registrations</span>
+      <span class="kpi-value">{{ total_registrations }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-purple"><i class="bi bi-people-fill"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Upcoming Events</span>
+      <span class="kpi-value">{{ upcoming_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-green"><i class="bi bi-clock-history"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Open Events</span>
+      <span class="kpi-value">{{ open_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-amber"><i class="bi bi-door-open-fill"></i></div>
+  </div>
+</div>
+
+<div class="quick-actions">
+  <a href="{{ url_for('add_event') }}" class="quick-action">
+    <div class="quick-action-icon"><i class="bi bi-plus-lg"></i></div>
+    <div class="quick-action-text"><strong>Add Event</strong><span>Create a new listing</span></div>
+  </a>
+  <a href="{{ url_for('events_page') }}" class="quick-action">
+    <div class="quick-action-icon"><i class="bi bi-calendar-event"></i></div>
+    <div class="quick-action-text"><strong>Manage Events</strong><span>Edit or remove events</span></div>
+  </a>
+  <a href="{{ url_for('register') }}" class="quick-action">
+    <div class="quick-action-icon"><i class="bi bi-person-plus"></i></div>
+    <div class="quick-action-text"><strong>Register Student</strong><span>Add a new registration</span></div>
+  </a>
+  <a href="{{ url_for('queries_page') }}" class="quick-action">
+    <div class="quick-action-icon"><i class="bi bi-database-gear"></i></div>
+    <div class="quick-action-text"><strong>Query Center</strong><span>Run live MongoDB queries</span></div>
+  </a>
+</div>
+
+<div class="panel-grid">
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-clock-history"></i>Upcoming Events</h3>
+      <a href="{{ url_for('events_page') }}" class="panel-link">View all</a>
+    </div>
+    {% set cat_badge = {'Technical':'badge-cat-technical','Cultural':'badge-cat-cultural','Workshop':'badge-cat-workshop','Sports':'badge-cat-sports','Hackathon':'badge-cat-hackathon','Seminar':'badge-cat-seminar'} %}
+    {% if upcoming_list %}
+    <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Event</th><th>Category</th><th>Date</th><th>Venue</th></tr></thead>
+      <tbody>
+      {% for e in upcoming_list %}
+        <tr>
+          <td class="cell-primary">{{ e.event_name }}</td>
+          <td><span class="badge {{ cat_badge.get(e.category, 'badge-category') }}">{{ e.category }}</span></td>
+          <td class="cell-muted">{{ e.date }}</td>
+          <td class="cell-muted">{{ e.venue }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-calendar-x"></i><strong>No upcoming events</strong><span>Add an event to see it here.</span></div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-pie-chart-fill"></i>Events by Category</h3>
+    </div>
+    {% if category_breakdown %}
+    <div class="category-bars">
+      {% for c in category_breakdown %}
+      <div class="category-bar-row">
+        <span class="category-bar-label">{{ c._id }}</span>
+        <div class="category-bar-track">
+          <div class="category-bar-fill" style="width: {{ (c.count / max_category_count * 100) if max_category_count else 0 }}%; background: {{ c.color }};"></div>
+        </div>
+        <span class="category-bar-count">{{ c.count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-bar-chart"></i><strong>No data yet</strong><span>Category stats appear once events exist.</span></div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel-grid-secondary">
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-clipboard-check"></i>Recent Registrations</h3>
+      <a href="{{ url_for('registrations_page') }}" class="panel-link">View all</a>
+    </div>
+    {% if recent_registrations %}
+    <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Student</th><th>Enrollment</th><th>Event ID</th></tr></thead>
+      <tbody>
+      {% for r in recent_registrations %}
+        <tr>
+          <td class="cell-primary">{{ r.student_name }}</td>
+          <td class="cell-muted">{{ r.enrollment_number }}</td>
+          <td class="cell-id">{{ r.event_id }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-inbox"></i><strong>No registrations yet</strong><span>Registrations will appear here.</span></div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-info-circle"></i>System Snapshot</h3>
+    </div>
+    <div class="category-bars">
+      <div class="category-bar-row" style="grid-template-columns: 1fr auto;">
+        <span class="category-bar-label">Database</span>
+        <span class="category-bar-count">campusconnect</span>
+      </div>
+      <div class="category-bar-row" style="grid-template-columns: 1fr auto;">
+        <span class="category-bar-label">Categories tracked</span>
+        <span class="category-bar-count">{{ category_breakdown|length }}</span>
+      </div>
+      <div class="category-bar-row" style="grid-template-columns: 1fr auto;">
+        <span class="category-bar-label">Closed / completed events</span>
+        <span class="category-bar-count">{{ total_events - upcoming_events }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

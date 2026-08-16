@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Edit Registration - CampusConnect{% endblock %}
+{% block page_title %}Edit Registration{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">{{ registration.registration_id }} &middot; {{ registration.student_name }}</span>{% endblock %}
+{% block content %}
+
+<form method="POST" id="editRegistrationForm" novalidate class="form-layout">
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-blue"><i class="bi bi-person-badge"></i></span>Student Information</p>
+    <div class="form-row">
+      <label>Student Name <span class="req">*</span></label>
+      <div class="input-wrap"><i class="bi bi-person"></i>
+        <input type="text" name="student_name" value="{{ registration.student_name }}" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Enrollment Number <span class="req">*</span></label>
+      <div class="input-wrap"><i class="bi bi-upc-scan"></i>
+        <input type="text" name="enrollment_number" value="{{ registration.enrollment_number }}" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-cyan"><i class="bi bi-envelope"></i></span>Contact Information</p>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Email <span class="req">*</span></label>
+        <div class="input-wrap"><i class="bi bi-envelope"></i>
+          <input type="email" name="email" value="{{ registration.email }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Phone <span class="req">*</span></label>
+        <div class="input-wrap"><i class="bi bi-telephone"></i>
+          <input type="tel" name="phone" pattern="\d{10}" maxlength="10" value="{{ registration.phone }}" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-violet"><i class="bi bi-mortarboard"></i></span>Academic Information</p>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Department <span class="req">*</span></label>
+        <input type="text" name="department" value="{{ registration.department }}" required>
+      </div>
+      <div class="form-row">
+        <label>Year <span class="req">*</span></label>
+        <select name="year" required>
+          {% for y in ["1st Year", "2nd Year", "3rd Year", "Final Year"] %}
+            <option value="{{ y }}" {{ 'selected' if registration.year == y }}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-green"><i class="bi bi-calendar-check"></i></span>Event Selection</p>
+    <div class="form-row">
+      <label>Select Event <span class="req">*</span></label>
+      <select name="event_id" required>
+        {% for e in events %}
+          <option value="{{ e.event_id }}" {{ 'selected' if registration.event_id == e.event_id }}>
+            {{ e.event_name }} ({{ e.date }})
+          </option>
+        {% endfor %}
+      </select>
+      <span class="form-hint">Correct the selected event if the student was registered for the wrong one.</span>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{{ url_for('registrations_page') }}" class="btn btn-outline">Cancel</a>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i>Update Registration</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form-validate.js') }}"></script>
+{% endblock %}

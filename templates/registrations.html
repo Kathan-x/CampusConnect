@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Registrations - CampusConnect{% endblock %}
+{% block page_title %}Registration Management{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">All student registrations across events</span>{% endblock %}
+{% block content %}
+
+<div class="toolbar">
+  <div class="search-field">
+    <i class="bi bi-search"></i>
+    <input type="text" id="searchInput" class="input" placeholder="Search by name or enrollment no...">
+  </div>
+  <select id="eventFilter" class="input">
+    <option value="">All Events</option>
+    {% for e in events %}<option value="{{ e.event_id }}">{{ e.event_name }}</option>{% endfor %}
+  </select>
+  <span class="count-pill" id="resultCount">0 registrations</span>
+</div>
+
+<div class="table-wrap">
+<table class="data-table" id="regTable">
+  <thead>
+    <tr>
+      <th>Registration ID</th><th>Student</th><th>Enrollment</th><th>Email</th>
+      <th>Department</th><th>Year</th><th>Event</th><th>Registered On</th><th class="actions-col">Actions</th>
+    </tr>
+  </thead>
+  <tbody id="regTableBody"></tbody>
+</table>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/registrations.js') }}"></script>
+{% endblock %}

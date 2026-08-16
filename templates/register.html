@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Register - CampusConnect{% endblock %}
+{% block page_title %}Student Registration{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Sign up for an upcoming college event</span>{% endblock %}
+{% block content %}
+
+<div class="reg-hero">
+  <div class="feature-icon" style="margin:0 auto 14px;"><i class="bi bi-person-plus-fill"></i></div>
+  <h2>Register for an Event</h2>
+  <p>Fill in your details below — it only takes a minute.</p>
+</div>
+
+<form method="POST" id="registerForm" novalidate class="form-layout" style="margin: 0 auto;">
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-blue"><i class="bi bi-person-badge"></i></span>Student Information</p>
+    <div class="form-row">
+      <label>Student Name <span class="req">*</span></label>
+      <div class="input-wrap"><i class="bi bi-person"></i>
+        <input type="text" name="student_name" placeholder="Full name" value="{{ form.student_name or '' }}" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Enrollment Number <span class="req">*</span></label>
+      <div class="input-wrap"><i class="bi bi-upc-scan"></i>
+        <input type="text" name="enrollment_number" placeholder="e.g. 22BCA045" value="{{ form.enrollment_number or '' }}" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-cyan"><i class="bi bi-envelope"></i></span>Contact Information</p>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Email <span class="req">*</span></label>
+        <div class="input-wrap"><i class="bi bi-envelope"></i>
+          <input type="email" name="email" placeholder="you@example.com" value="{{ form.email or '' }}" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Phone <span class="req">*</span></label>
+        <div class="input-wrap"><i class="bi bi-telephone"></i>
+          <input type="tel" name="phone" pattern="\d{10}" maxlength="10" placeholder="10-digit number" value="{{ form.phone or '' }}" required>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-violet"><i class="bi bi-mortarboard"></i></span>Academic Information</p>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Department <span class="req">*</span></label>
+        <input type="text" name="department" value="{{ form.department or '' }}" placeholder="e.g. BCA" required>
+      </div>
+      <div class="form-row">
+        <label>Year <span class="req">*</span></label>
+        <select name="year" required>
+          <option value="">Select year</option>
+          {% for y in ["1st Year", "2nd Year", "3rd Year", "Final Year"] %}
+            <option value="{{ y }}" {{ 'selected' if form.year == y }}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><span class="form-section-icon fsi-green"><i class="bi bi-calendar-check"></i></span>Event Selection</p>
+    <div class="form-row">
+      <label>Select Event <span class="req">*</span></label>
+      <select name="event_id" required>
+        <option value="">Choose an open event</option>
+        {% for e in events %}
+          <option value="{{ e.event_id }}" {{ 'selected' if form.event_id == e.event_id }}>
+            {{ e.event_name }} ({{ e.date }}) - &#8377;{{ e.registration_fee }}
+          </option>
+        {% endfor %}
+      </select>
+      <span class="form-hint">Only events that are currently Open accept registrations.</span>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-send-check"></i>Submit Registration</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form-validate.js') }}"></script>
+{% endblock %}

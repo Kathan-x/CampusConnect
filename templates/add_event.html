@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Add Event - CampusConnect{% endblock %}
+{% block page_title %}Add Event{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Create a new college event</span>{% endblock %}
+{% block content %}
+<form method="POST" id="eventForm" novalidate class="form-layout">
+
+  <div class="form-card">
+    <p class="form-section-title"><i class="bi bi-card-text"></i>Event Information</p>
+    <div class="form-row">
+      <label>Event Name <span class="req">*</span></label>
+      <input type="text" name="event_name" placeholder="e.g. CodeStorm Hackathon" value="{{ form.event_name or '' }}" required>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Category <span class="req">*</span></label>
+        <select name="category" required>
+          <option value="">Select category</option>
+          {% for c in categories %}
+            <option value="{{ c }}" {{ 'selected' if form.category == c }}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Status <span class="req">*</span></label>
+        <select name="status" required>
+          {% for s in statuses %}
+            <option value="{{ s }}" {{ 'selected' if form.status == s or (not form and s == 'Open') }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:16px;">
+      <label>Description</label>
+      <textarea name="description" rows="3" placeholder="Briefly describe the event...">{{ form.description or '' }}</textarea>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><i class="bi bi-calendar-week"></i>Schedule</p>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Date <span class="req">*</span></label>
+        <input type="date" name="date" value="{{ form.date or '' }}" required>
+      </div>
+      <div class="form-row">
+        <label>Time <span class="req">*</span></label>
+        <input type="time" name="time" value="{{ form.time or '' }}" required>
+      </div>
+      <div class="form-row full">
+        <label>Venue <span class="req">*</span></label>
+        <input type="text" name="venue" placeholder="e.g. Main Auditorium" value="{{ form.venue or '' }}" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <p class="form-section-title"><i class="bi bi-sliders"></i>Management</p>
+    <div class="form-row">
+      <label>Organizer <span class="req">*</span></label>
+      <input type="text" name="organizer" placeholder="e.g. CSE Department" value="{{ form.organizer or '' }}" required>
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Maximum Participants <span class="req">*</span></label>
+        <input type="number" name="max_participants" min="1" placeholder="e.g. 120" value="{{ form.max_participants or '' }}" required>
+      </div>
+      <div class="form-row">
+        <label>Registration Fee (&#8377;)</label>
+        <input type="number" name="registration_fee" min="0" step="0.01" value="{{ form.registration_fee or 0 }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <a href="{{ url_for('events_page') }}" class="btn btn-outline">Cancel</a>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i>Save Event</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form-validate.js') }}"></script>
+{% endblock %}

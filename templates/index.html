@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}CampusConnect - Home{% endblock %}
+{% block page_title %}Home{% endblock %}
+{% block page_subtitle %}<span class="page-subtitle">Your campus command center</span>{% endblock %}
+{% block content %}
+
+<div class="welcome-header">
+  <div>
+    <h1>Welcome back, Admin! <span aria-hidden="true">👋</span></h1>
+    <p>Here's what's happening with your campus events today.</p>
+  </div>
+  <div class="date-chip"><i class="bi bi-calendar3"></i>{{ today_display }}</div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Total Events</span>
+      <span class="kpi-value">{{ total_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-indigo"><i class="bi bi-calendar2-week-fill"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Total Registrations</span>
+      <span class="kpi-value">{{ total_registrations }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-purple"><i class="bi bi-people-fill"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Upcoming Events</span>
+      <span class="kpi-value">{{ upcoming_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-green"><i class="bi bi-clock-history"></i></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-text">
+      <span class="kpi-label">Open Events</span>
+      <span class="kpi-value">{{ open_events }}</span>
+    </div>
+    <div class="kpi-icon kpi-icon-amber"><i class="bi bi-door-open-fill"></i></div>
+  </div>
+</div>
+
+<div class="home-grid-primary">
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-clock-history"></i>Upcoming Events</h3>
+      <a href="{{ url_for('events_page') }}" class="panel-link">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    {% set cat_icons = {'Technical':'bi-cpu','Cultural':'bi-music-note-beamed','Sports':'bi-trophy','Workshop':'bi-tools','Seminar':'bi-mic','Hackathon':'bi-code-slash'} %}
+    {% set cat_badge = {'Technical':'badge-cat-technical','Cultural':'badge-cat-cultural','Workshop':'badge-cat-workshop','Sports':'badge-cat-sports','Hackathon':'badge-cat-hackathon','Seminar':'badge-cat-seminar'} %}
+    {% if upcoming_list %}
+      <div class="event-row-list">
+      {% for e in upcoming_list %}
+        <a href="{{ url_for('edit_event', event_id=e.event_id) }}" class="event-row">
+          <div class="event-row-icon" style="background: linear-gradient(135deg, {{ e.color }}, {{ e.color }}99);">
+            <i class="bi {{ cat_icons.get(e.category, 'bi-calendar-event') }}"></i>
+          </div>
+          <div class="event-row-main">
+            <div class="event-row-top">
+              <span class="event-row-name">{{ e.event_name }}</span>
+              <span class="badge {{ cat_badge.get(e.category, 'badge-category') }}">{{ e.category }}</span>
+            </div>
+            <div class="event-row-meta">
+              <span><i class="bi bi-calendar3"></i>{{ e.date }}</span>
+              <span><i class="bi bi-clock"></i>{{ e.time }}</span>
+              <span><i class="bi bi-geo-alt"></i>{{ e.venue }}</span>
+            </div>
+            <div class="capacity-cell">
+              <span class="capacity-numbers">{{ e.registered_count }} / {{ e.max_participants }} registered</span>
+              <div class="capacity-track"><div class="capacity-fill" style="width: {{ (e.registered_count / e.max_participants * 100) if e.max_participants else 0 }}%;"></div></div>
+            </div>
+          </div>
+          <span class="{{ 'badge badge-' ~ e.status.lower() }}">{{ e.status }}</span>
+        </a>
+      {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-calendar-x"></i><strong>No upcoming events</strong><span>Add an event to see it here.</span></div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-pie-chart-fill"></i>Event Categories</h3>
+      <a href="{{ url_for('events_page') }}" class="panel-link">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    {% if category_breakdown %}
+      <div class="donut-wrap">
+        <div class="donut-canvas-box">
+          <canvas id="categoryDonut" width="180" height="180"></canvas>
+          <div class="donut-center"><span class="donut-total">{{ total_events }}</span><span class="donut-total-label">Total</span></div>
+        </div>
+        <div class="donut-legend">
+          {% for c in category_breakdown %}
+          <div class="donut-legend-row">
+            <span class="donut-legend-dot" style="background: {{ c.color }};"></span>
+            <span class="donut-legend-label">{{ c._id }}</span>
+            <span class="donut-legend-value">{{ c.count }} <span class="donut-legend-pct">({{ c.percentage }}%)</span></span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-bar-chart"></i><strong>No data yet</strong><span>Category stats appear once events exist.</span></div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="home-grid-secondary">
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-clipboard-check"></i>Recent Registrations</h3>
+      <a href="{{ url_for('registrations_page') }}" class="panel-link">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    {% if recent_registrations %}
+    <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Student Name</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in recent_registrations %}
+        <tr>
+          <td class="cell-primary">{{ r.student_name }}</td>
+          <td class="cell-muted">{{ r.event_name }}</td>
+          <td class="cell-muted">{{ r.registered_at.strftime('%d %b %Y') if r.registered_at else '-' }}</td>
+          <td><span class="badge badge-open">Confirmed</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+      <div class="empty-state"><i class="bi bi-inbox"></i><strong>No registrations yet</strong><span>Registrations will appear here.</span></div>
+    {% endif %}
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3><i class="bi bi-lightning-charge-fill"></i>Quick Actions</h3>
+    </div>
+    <div class="quick-tile-grid">
+      <a href="{{ url_for('add_event') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-purple"><i class="bi bi-plus-lg"></i></div>
+        <span>Add Event</span>
+      </a>
+      <a href="{{ url_for('events_page') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-blue"><i class="bi bi-calendar-event"></i></div>
+        <span>View Events</span>
+      </a>
+      <a href="{{ url_for('register') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-green"><i class="bi bi-person-plus"></i></div>
+        <span>Student Registration</span>
+      </a>
+      <a href="{{ url_for('registrations_page') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-orange"><i class="bi bi-clipboard-check"></i></div>
+        <span>View Registrations</span>
+      </a>
+      <a href="{{ url_for('queries_page') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-violet"><i class="bi bi-database-gear"></i></div>
+        <span>Query Center</span>
+      </a>
+      <a href="{{ url_for('dashboard') }}" class="quick-tile">
+        <div class="quick-tile-icon qt-cyan"><i class="bi bi-grid-1x2"></i></div>
+        <span>Dashboard</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="panel snapshot-strip">
+  <div class="panel-head">
+    <h3><i class="bi bi-info-circle"></i>System Snapshot</h3>
+  </div>
+  <div class="snapshot-row">
+    <div class="snapshot-item"><span class="snapshot-value">{{ open_events }}</span><span class="snapshot-label">Open Events</span></div>
+    <div class="snapshot-item"><span class="snapshot-value">{{ completed_events }}</span><span class="snapshot-label">Completed Events</span></div>
+    <div class="snapshot-item"><span class="snapshot-value">{{ total_capacity }}</span><span class="snapshot-label">Total Capacity</span></div>
+    <div class="snapshot-item"><span class="snapshot-value">{{ total_registrations }}</span><span class="snapshot-label">Registered Students</span></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  const categoryData = {{ category_breakdown | tojson }};
+  const ctx = document.getElementById('categoryDonut');
+  if (ctx && categoryData.length) {
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: categoryData.map(c => c._id),
+        datasets: [{
+          data: categoryData.map(c => c.count),
+          backgroundColor: categoryData.map(c => c.color),
+          borderWidth: 2,
+          borderColor: '#ffffff',
+        }],
+      },
+      options: {
+        cutout: '72%',
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        responsive: false,
+      },
+    });
+  }
+</script>
+{% endblock %}
